@@ -92,6 +92,12 @@ int main (int argc, char* argv[])
     unsigned char bimodal_table[Max_size] = {0};
     unsigned char ogshare_table[Max_size] = {0};
 
+    history = 0; //gshare history initialized to 0 just in case
+    n = 0; 
+    og_zie = 0;
+    
+
+
 
     while(fscanf(FP, "%lx %s", &addr, str) != EOF)
     {
@@ -108,30 +114,71 @@ int main (int argc, char* argv[])
         unsigned int index;
         char prediction;
 
-        if (strcmp(params.bp_name, "bimodal") == 0) {
+        if (strcmp(params.bp_name, "bimodal") == 0) { //models bimodal predictor
 
             index = (addr >> 2)  & ((1<< params.M2) - 1);
             prediction = (bimodal_table[index] >= 2) ? 't' : 'n';
 
+            if ((prediction == 't' && outcome == 't') && bimodal_table[index] < 3) {
+                
+                bimodal_table[index]++; // Taken prediction if correct
 
-            if 
+            }
+            else if ((prediction == 'n' && outcome =='n') && bimodal_table[index] > 0){
 
+                bimodal_table[index]--; // If correct not taken
 
+            }
+            else if ((prediction == 't' && outcome =='n') && bimodal_table[index] > 0){
 
-             
-            
-            printf("test to see if da bimdoal works");
+                bimodal_table[index]--; // Predicted taken but mispredicted
+
+            }
+            else if ((prediction == 'n' && outcome =='t') && bimodal_table[index] < 3){
+
+                bimodal_table[index]++; // Predicted not taken but mispredicted
+
+            }            
+            printf("test to see if da bimodal works \n");
             
         }
 
-        else if (strcmp(params.bp_name, "gshare") == 0) {
+        else if (strcmp(params.bp_name, "gshare") == 0) { //Models gshare predictor
+            
+            //start off by getting the index and history then xoring them
+            index = (addr >> 2) & ((1 << params.M1) - 1);
+            history = (addr >> 2) & ((1 << params.N) - 1);
+            true_history = history ^ index;            
 
+            prediction = (ogshare_table[true_history] >= 2) ? 't' : 'n';
 
-            printf("Just a test to see if this works");
+            if ((prediction == 't' && outcome == 't') && ogshare_table[true_history] < 3) {
+                
+                ogshare_table[true_history]++; // Taken prediction if correct
+
+            }
+            else if ((prediction == 'n' && outcome =='n') && ogshare_table[true_history] > 0){
+
+                ogshare_table[true_history]--; // If correct not taken
+
+            }
+            else if ((prediction == 't' && outcome =='n') && ogshare_table[true_history] > 0){
+
+                ogshare_table[true_history]--; // Predicted taken but mispredicted
+
+            }
+            else if ((prediction == 'n' && outcome =='t') && ogshare_table[true_history] < 3){
+
+                ogshare_table[true_history]++; // Predicted not taken but mispredicted
+
+            }            
+
+            printf("Just a test to see if da ghare werk \n");
         
+        }
 
     }
-
     return 0;
 }
+
 
